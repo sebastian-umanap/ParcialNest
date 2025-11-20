@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { BootstrapSeeder } from './common/bootstrap.seeder'; 
+import { AppointmentsModule } from './appointments/appointments.module';
 
 
 @Module({
@@ -33,6 +34,7 @@ import { BootstrapSeeder } from './common/bootstrap.seeder';
     UsersModule,
     RolesModule,
     AuthModule,
+    AppointmentsModule,
   ],
   providers: [
     BootstrapSeeder,
