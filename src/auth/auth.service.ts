@@ -70,7 +70,7 @@ export class AuthService {
     // flujo con LocalAuthGuard (req.user)
     if (dto?.user?.id) {
       const u = dto.user;
-      const roles = (u.roles ?? []).map((r: any) => r.roleName); // ✅ define roles
+      const roles = (u.roles ?? []).map((r: any) => r.roleName); 
       const payload = { sub: u.id, email: u.email, roles };
       const access_token = await this.jwt.signAsync(payload);
       return { access_token, user: { id: u.id, email: u.email, name: u.name, roles } };
@@ -80,7 +80,7 @@ export class AuthService {
     const user = await this.validateUser(dto.email, dto.password);
     if (!user) throw new UnauthorizedException('Credenciales inválidas');
 
-    const roles = (user.roles ?? []).map((r: any) => r.roleName); // ✅ define roles
+    const roles = (user.roles ?? []).map((r: any) => r.roleName); 
     const payload = { sub: user.id, email: user.email, roles };
     const access_token = await this.jwt.signAsync(payload);
     return { access_token, user: { id: user.id, email: user.email, name: user.name, roles } };

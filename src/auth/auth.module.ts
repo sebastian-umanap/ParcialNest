@@ -9,11 +9,8 @@ import { JwtStrategy } from './jwt.strategy';
 import { UserEntity } from '../users/users.entity';
 import { RoleEntity } from '../roles/roles.entity';
 
-// === Normaliza y tipa expiresIn correctamente ===
 const JWT_SECRET = (process.env.JWT_SECRET ?? 'dev-secret').trim();
 const RAW_EXP = (process.env.JWT_EXPIRES_IN ?? '120s').trim().replace(/^['"]|['"]$/g, '');
-
-// Coincide con el tipo de 'ms' que usa @nestjs/jwt internamente
 type MsString = `${number}${'ms'|'s'|'m'|'h'|'d'|'w'|'y'}`;
 
 const JWT_EXPIRES_IN: number | MsString =
