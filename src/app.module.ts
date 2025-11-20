@@ -16,6 +16,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { BootstrapSeeder } from './common/bootstrap.seeder'; 
 import { AppointmentsModule } from './appointments/appointments.module';
+import { AppointmentEntity } from './appointments/appointment.entity';
 
 
 @Module({
@@ -28,7 +29,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
       username: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASS ?? '1234',
       database: process.env.DB_NAME ?? 'parcial',
-      entities: [UserEntity, RoleEntity],
+      entities: [UserEntity, RoleEntity, AppointmentEntity],
       synchronize: false,
     }),
     UsersModule,
