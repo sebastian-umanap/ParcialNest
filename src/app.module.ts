@@ -30,7 +30,7 @@ import { AppointmentEntity } from './appointments/appointment.entity';
       password: process.env.DB_PASS ?? '1234',
       database: process.env.DB_NAME ?? 'parcial',
       entities: [UserEntity, RoleEntity, AppointmentEntity],
-      synchronize: false,
+      synchronize: true,
     }),
     UsersModule,
     RolesModule,
