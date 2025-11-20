@@ -27,7 +27,7 @@ export class AppointmentsService {
       reqId === id_user ||
       (this.isDoctor(requester) && reqId === id_doctor);
 
-    if (!allowed) throw new ForbiddenException('No autorizado para crear esta cita');
+    if (!allowed) throw new ForbiddenException('Forbidden,No autorizado para crear esta cita');
 
     const ap = this.repo.create({
       id_user,
@@ -39,20 +39,20 @@ export class AppointmentsService {
   }
 
   async findAll(requester: ReqUser) {
-    if (!this.isAdmin(requester)) throw new ForbiddenException('No autorizado');
+    if (!this.isAdmin(requester)) throw new ForbiddenException('Forbidden,No autorizado');
     return this.repo.find();
   }
 
   async findByUser(requester: ReqUser, id_user: string) {
     if (!(this.isAdmin(requester) || requester?.id === id_user)) {
-      throw new ForbiddenException('No autorizado');
+      throw new ForbiddenException('Forbidden,No autorizado');
     }
     return this.repo.find({ where: { id_user } });
   }
 
   async findByDoctor(requester: ReqUser, id_doctor: string) {
     if (!(this.isAdmin(requester) || (this.isDoctor(requester) && requester?.id === id_doctor))) {
-      throw new ForbiddenException('No autorizado');
+      throw new ForbiddenException('Forbidden,No autorizado');
     }
     return this.repo.find({ where: { id_doctor } });
   }
@@ -64,20 +64,20 @@ export class AppointmentsService {
       reqId === id_user ||
       (this.isDoctor(requester) && reqId === id_doctor);
 
-    if (!allowed) throw new ForbiddenException('No autorizado');
+    if (!allowed) throw new ForbiddenException('Forbidden,No autorizado');
     return this.repo.find({ where: { id_user, id_doctor } });
   }
 
   async findOneAuthorized(requester: ReqUser, id: string) {
     const ap = await this.repo.findOne({ where: { id } });
-    if (!ap) throw new NotFoundException('Cita no encontrada');
+    if (!ap) throw new NotFoundException('No se pudo obtener cita');
 
     const allowed =
       this.isAdmin(requester) ||
       requester?.id === ap.id_user ||
       (this.isDoctor(requester) && requester?.id === ap.id_doctor);
 
-    if (!allowed) throw new ForbiddenException('No autorizado');
+    if (!allowed) throw new ForbiddenException('Forbidden,No autorizado');
     return ap;
   }
 
@@ -91,6 +91,6 @@ export class AppointmentsService {
   async remove(requester: ReqUser, id: string) {
     const ap = await this.findOneAuthorized(requester, id);
     await this.repo.remove(ap);
-    return { message: 'Appointment eliminado' };
+    return { message: 'Cita eliminada con exito' };
   }
 }
