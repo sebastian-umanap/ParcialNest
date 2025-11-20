@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -21,12 +26,12 @@ export class AuthService {
     const phone = dto.phone ?? null;
     const plain = dto.password ?? '';
 
-    if (!email || !plain || !name) {
-      throw new BadRequestException('Datos incompletos');
-    }
+    // valida datos mínimos y forma simple de email
+    if (!email || !plain || !name) throw new BadRequestException('Datos incompletos');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new BadRequestException('Email inválido');
 
     const exists = await this.usersRepo.findOne({ where: { email } });
-    if (exists) throw new BadRequestException('El correo ya está registrado');
+    if (exists) throw new ConflictException('Email ya registrado');
 
     const password = await bcrypt.hash(plain, 10);
     const user = this.usersRepo.create({
@@ -42,7 +47,7 @@ export class AuthService {
     return { message: 'Usuario registrado con éxito', userId: user.id };
   }
 
-  // Usado por LocalStrategy y también por login directo
+  // usado por LocalStrategy y también por login directo
   async validateUser(email: string, plainPass: string) {
     const qb = this.usersRepo
       .createQueryBuilder('u')
@@ -62,24 +67,22 @@ export class AuthService {
 
   // POST /auth/login
   async login(dto: any) {
+    // flujo con LocalAuthGuard (req.user)
     if (dto?.user?.id) {
       const u = dto.user;
-      const payload = {
-        sub: u.id,
-        email: u.email,
-        roles: (u.roles ?? []).map((r: any) => r.roleName),
-      };
-      return { access_token: await this.jwt.signAsync(payload) };
+      const roles = (u.roles ?? []).map((r: any) => r.roleName); // ✅ define roles
+      const payload = { sub: u.id, email: u.email, roles };
+      const access_token = await this.jwt.signAsync(payload);
+      return { access_token, user: { id: u.id, email: u.email, name: u.name, roles } };
     }
 
+    // flujo directo (sin LocalAuthGuard)
     const user = await this.validateUser(dto.email, dto.password);
     if (!user) throw new UnauthorizedException('Credenciales inválidas');
 
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      roles: (user.roles ?? []).map((r: any) => r.roleName),
-    };
-    return { access_token: await this.jwt.signAsync(payload) };
+    const roles = (user.roles ?? []).map((r: any) => r.roleName); // ✅ define roles
+    const payload = { sub: user.id, email: user.email, roles };
+    const access_token = await this.jwt.signAsync(payload);
+    return { access_token, user: { id: user.id, email: user.email, name: user.name, roles } };
   }
 }

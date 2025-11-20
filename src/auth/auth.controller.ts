@@ -1,5 +1,5 @@
 // src/auth/auth.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { Public } from './public.decorator';
 import { AuthService } from './auth.service';
 
@@ -13,5 +13,6 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  @HttpCode(HttpStatus.OK) // 200
   login(@Body() dto: any) { return this.auth.login(dto); }
 }

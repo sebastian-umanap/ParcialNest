@@ -1,5 +1,5 @@
 // src/auth/roles.guard.ts
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator';
 
@@ -15,9 +15,17 @@ export class RolesGuard implements CanActivate {
     if (!required || required.length === 0) return true;
 
     const req = ctx.switchToHttp().getRequest();
-    const user = req.user as { roles?: { name: string }[] };
-    const names = (user?.roles ?? []).map(r => r.name);
-    const ok = required.some(r => names.includes(r));
+    const user = req.user;
+
+    const userRoles: string[] = Array.isArray(user?.roles)
+      ? user.roles.map((r: any) => {
+          if (typeof r === 'string') return r.toLowerCase();
+          const val = r?.roleName ?? r?.name ?? r;
+          return String(val).toLowerCase();
+        })
+      : [];
+
+    const ok = required.some((rol) => userRoles.includes(String(rol).toLowerCase()));
     if (!ok) throw new ForbiddenException('No tienes los permisos requeridos');
     return true;
   }

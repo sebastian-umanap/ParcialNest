@@ -9,13 +9,24 @@ import { JwtStrategy } from './jwt.strategy';
 import { UserEntity } from '../users/users.entity';
 import { RoleEntity } from '../roles/roles.entity';
 
-const expiresIn = parseInt(process.env.JWT_EXPIRES_IN ?? '120', 10);
+// === Normaliza y tipa expiresIn correctamente ===
+const JWT_SECRET = (process.env.JWT_SECRET ?? 'dev-secret').trim();
+const RAW_EXP = (process.env.JWT_EXPIRES_IN ?? '120s').trim().replace(/^['"]|['"]$/g, '');
+
+// Coincide con el tipo de 'ms' que usa @nestjs/jwt internamente
+type MsString = `${number}${'ms'|'s'|'m'|'h'|'d'|'w'|'y'}`;
+
+const JWT_EXPIRES_IN: number | MsString =
+  /^\d+$/.test(RAW_EXP) ? Number(RAW_EXP) : (RAW_EXP as MsString);
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, RoleEntity]),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
-    JwtModule.register({ secret: process.env.JWT_SECRET ?? 'secreto', signOptions: { expiresIn } }),
+    JwtModule.register({
+      secret: JWT_SECRET,
+      signOptions: { expiresIn: JWT_EXPIRES_IN },
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
