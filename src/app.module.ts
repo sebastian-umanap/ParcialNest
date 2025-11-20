@@ -14,12 +14,12 @@ import { AuthModule } from './auth/auth.module';
 
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
-import { BootstrapSeeder } from './common/bootstrap.seeder'; // 👈
+import { BootstrapSeeder } from './common/bootstrap.seeder'; 
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // solo carga .env, no se inyecta cfg
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST ?? 'localhost',
